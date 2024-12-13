@@ -4,7 +4,7 @@ import (
 	"log"
 	petInterface "onvet/internal/app/pet/interfaces"
 	"onvet/internal/app/user/interfaces"
-	rep "onvet/internal/app/user/user_repository"
+	rep "onvet/internal/app/user/repository"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -58,6 +58,24 @@ func GetById(fiberCtx *fiber.Ctx) error {
 
 	if err != nil {
 		log.Println("failed to get user id", err)
+		return fiberCtx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"success": false,
+			"error":   err.Error(),
+		})
+	}
+
+	return fiberCtx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"success": true,
+		"data":    user,
+	})
+}
+
+func GetByEmail(fiberCtx *fiber.Ctx) error {
+	userId := fiberCtx.Params("email")
+	user, err := rep.GetByEmail(fiberCtx, userId)
+
+	if err != nil {
+		log.Println("failed to get user email", err)
 		return fiberCtx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"success": false,
 			"error":   err.Error(),

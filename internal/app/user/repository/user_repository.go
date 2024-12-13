@@ -1,4 +1,4 @@
-package user_repository
+package repository
 
 import (
 	"database/sql"
@@ -49,7 +49,39 @@ func GetById(fiberCtx *fiber.Ctx, userId string) (interfaces.UserDTO, error) {
 		userId,
 	)
 	if err != nil {
-		log.Println("failed to select user: ", err)
+		log.Println("failed to select user by id: ", err)
+		return interfaces.UserDTO{}, err
+	}
+	defer rows.Close()
+
+	var userItem interfaces.UserDTO
+	if rows.Next() {
+		var surname *string
+		err = rows.Scan(&userItem.ID, &userItem.Email, &userItem.Name, &surname)
+		if err != nil {
+			log.Println("failed to scan row: ", err)
+			return interfaces.UserDTO{}, err
+		}
+		userItem.Surname = surname
+	} else {
+		return interfaces.UserDTO{}, sql.ErrNoRows
+	}
+
+	return userItem, nil
+}
+
+func GetByEmail(fiberCtx *fiber.Ctx, userId string) (interfaces.UserDTO, error) {
+	query := `
+		SELECT id, email, name, surname
+		FROM users
+		WHERE email = ?
+	`
+
+	rows, err := db.Query(query,
+		userId,
+	)
+	if err != nil {
+		log.Println("failed to select user by email: ", err)
 		return interfaces.UserDTO{}, err
 	}
 	defer rows.Close()

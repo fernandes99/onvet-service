@@ -17,6 +17,7 @@ func RegisterRoutes(
 	apiUser.Post("/", handlers.Create)
 
 	apiUser.Get("/:id", handlers.GetById)
+	apiUser.Get("/email/:email", handlers.GetByEmail)
 
 	apiUser.Get("/:id/addresses", handlers.GetUserAddresses)
 	apiUser.Post("/:id/addresses", handlers.CreateUserAddress)
